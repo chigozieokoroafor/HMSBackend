@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey:true,
       unique:true
     },
-    firstName: {
+    fullName: {
       type:DataTypes.STRING,
       allowNull:false
     },
@@ -50,6 +50,11 @@ module.exports = (sequelize, DataTypes) => {
     password:{
       type:DataTypes.STRING,
       allowNull:false
+    },
+    room_id:{
+      type:DataTypes.INTEGER,
+      allowNull:true,
+      defaultValue:0
     }
   }, {
     sequelize,

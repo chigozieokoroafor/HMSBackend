@@ -25,8 +25,8 @@ module.exports = {
         type: Datatypes.STRING
       },
       status:{
-        type:Datatypes.STRING,
-        defaultValue:"available"
+        type:Datatypes.INTEGER,
+        defaultValue:1
       },
       users_paid:{
         type:Datatypes.BOOLEAN,
