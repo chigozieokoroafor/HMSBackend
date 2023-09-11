@@ -34,10 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue:""
     },
     roomNo: DataTypes.INTEGER,
-    
+
     status:{
-      type:Datatypes.STRING,
-      defaultValue:"available"
+      type:Datatypes.INTEGER,
+      defaultValue:1
     },
     users_paid:{
       type:Datatypes.BOOLEAN,

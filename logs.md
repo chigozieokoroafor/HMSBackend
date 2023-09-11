@@ -17,3 +17,4 @@ NB: Using Datatypes.NUMBERS returns an error
 
 to undo all migration : sequelize db:migrate:undo:all
 to undo last migration: sequelize db:migrate:undo
+to undo specific migration : sequelize db:migrate:undo --name 20230908193420-create-rooms.js

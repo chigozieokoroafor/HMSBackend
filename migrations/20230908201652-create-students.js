@@ -28,6 +28,11 @@ module.exports = {
         allowNull: false,
         type:Datatypes.STRING
       },
+      room_id:{
+        type:Datatypes.INTEGER,
+        allowNull:true,
+        defaultValue:0
+      },
       createdAt: {
         allowNull: false,
         type: Datatypes.DATE
