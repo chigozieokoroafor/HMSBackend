@@ -9,10 +9,20 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate({rooms}) {
       // define association here
+      this.belongsTo(rooms, { foreignKey:'matricNo', as:"room"})
+    }
+    
+    toJSON(){
+      return {
+        ...this.get(),
+        createdAt:undefined,
+        updatedAt:undefined
+      }
     }
   }
+  
   students.init({
     matricNo: {
       type:DataTypes.STRING,
@@ -20,11 +30,27 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey:true,
       unique:true
     },
-    firstName: DataTypes.STRING,
-    dept: DataTypes.STRING,
-    faculty: DataTypes.STRING,
-    part: DataTypes.INTEGER,
-    password:DataTypes.STRING
+    firstName: {
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    dept: {
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    faculty: {
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+
+    part: {
+      type:DataTypes.INTEGER,
+      allowNull:false
+    },
+    password:{
+      type:DataTypes.STRING,
+      allowNull:false
+    }
   }, {
     sequelize,
     modelName: 'students',

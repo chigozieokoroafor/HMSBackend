@@ -1,35 +1,40 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up(queryInterface, Datatypes) {
     await queryInterface.createTable('students', {
       matricNo: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING
+        type: Datatypes.STRING
       },
       firstName: {
-        type: Sequelize.STRING
+        allowNull: false,
+        type: Datatypes.STRING
       },
       dept: {
-        type: Sequelize.STRING
+        allowNull: false,
+        type: Datatypes.STRING
       },
       faculty: {
-        type: Sequelize.STRING
+        allowNull: false,
+        type: Datatypes.STRING
       },
       part: {
-        type: Sequelize.INTEGER
+        allowNull: false,
+        type: Datatypes.INTEGER
       },
       password:{
-        type:Sequelize.STRING
+        allowNull: false,
+        type:Datatypes.STRING
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Datatypes.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Datatypes.DATE
       }
     });
   },

@@ -1,11 +1,13 @@
-const {sequelize, students} =  require("./models")
+const {sequelize} =  require("./models")
 const express =  require("express");
-const student_routes = require("./routes/student_routes");
+const student_routes = require("./routes/students/student_routes");
+const hostel_routes = require("./routes/students/upload_hostels");
 
 
 const app = express();
 app.use(express.json());
 app.use("/students", student_routes);
+app.use('/hostel', hostel_routes);
 
 
 

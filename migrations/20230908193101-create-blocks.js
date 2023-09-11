@@ -1,30 +1,30 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up(queryInterface, Datatypes) {
     await queryInterface.createTable('blocks', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Datatypes.INTEGER
       },
       uuid: {
-        type: Sequelize.UUID
+        type: Datatypes.UUID
       },
       label: {
-        type: Sequelize.STRING
+        type: Datatypes.STRING
       },
       hostel_id: {
-        type: Sequelize.UUID
+        type: Datatypes.UUID
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Datatypes.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Datatypes.DATE
       }
     });
   },
