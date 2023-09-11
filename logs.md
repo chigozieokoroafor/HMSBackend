@@ -14,3 +14,6 @@ sequelize model:generate --name NameOfTable --attributes name_of_column:dtype, n
 Learn how to do the associations very well.
 
 NB: Using Datatypes.NUMBERS returns an error
+
+to undo all migration : sequelize db:migrate:undo:all
+to undo last migration: sequelize db:migrate:undo
