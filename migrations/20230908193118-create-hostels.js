@@ -18,7 +18,8 @@ module.exports = {
       },
       name:{
         type:Datatypes.STRING,
-        allowNull:false
+        allowNull:false,
+        unique:true
       },
       createdAt: {
         allowNull: false,

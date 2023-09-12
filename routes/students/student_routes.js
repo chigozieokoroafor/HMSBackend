@@ -40,12 +40,12 @@ router.post("/signin", async (req, res)=>{
 });
 
 router.post("/user", async(req, res) => {
-    const {firstName, matricNo, password, dept, faculty, part} = req.body;
+    const {fullName, matricNo, password, dept, faculty, part} = req.body;
     // console.log({name, m_number, password});
     // console.log(Students)
     // const req_params = ["firstName", 'matricNo', "password"];
     try {
-        const user =  await students.create({firstName, matricNo, password, dept, faculty, part});
+        const user =  await students.create({fullName, matricNo, password, dept, faculty, part});
         const res_data = {
             message:"",
             data:user,

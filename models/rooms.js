@@ -36,11 +36,12 @@ module.exports = (sequelize, DataTypes) => {
     roomNo: DataTypes.INTEGER,
 
     status:{
-      type:Datatypes.INTEGER,
+      type:DataTypes.INTEGER,
       defaultValue:1
     },
+    
     users_paid:{
-      type:Datatypes.BOOLEAN,
+      type:DataTypes.BOOLEAN,
       defaultValue:false
     }
   }, {
