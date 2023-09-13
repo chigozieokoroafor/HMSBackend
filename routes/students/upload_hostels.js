@@ -2,16 +2,18 @@ const { sequelize, rooms, hostels, blocks} =  require('../../models');
 const express = require("express");
 const router = express.Router();
 const uuid = require('uuid');
-uuid.v4()
+const {validateRooms, validateHostels} = require("./functions");
+
 
 // authentication first
 router.use(express.json())
 
 router.get("/get", async(req, res)=>{
-    var hostel = await hostels.findAll()
-    res.send(hostel).status(200)
+    let hostel = await hostels.findAll();
+    res.send(hostel).status(200);
 
 });
+
 router.post('/uploadHostel', async(req, res) =>{
     const {name, gender} =  req.body;
     const res_data = {
@@ -71,8 +73,61 @@ router.post('/uploadBlocks', async(req, res) =>{
 });
 
 router.post("/uploadRooms", async(req, res)=>{
-    const {} = request.body;
+    const {roomNo, hostel_id, block_id, bedNo} = req.body;
+    let data = {
+        message : "",
+        data: {},
+        success:false
+    }
+
+    let {error} = validateRooms({roomNo, hostel_id, block_id, bedNo});
     
+    if(error){
+        
+        data.message = error.details[0].message;
+        return res.send(data).status(200);
+    }
+    
+    // run a check here if data here exists
+    try{
+        const roomCheck = await rooms.findOne({
+            where:{roomNo, hostel_id, block_id, bedNo}
+        });
+        
+        if(roomCheck === null){    
+            try{
+                const hostel = await hostels.findOne({
+                    where:{uuid:hostel_id}
+                })
+                
+                gender = hostel.gender;
+
+                const room = await rooms.create({roomNo, hostel_id, block_id, bedNo, gender:gender});
+                data.data = room;
+                data.success = true;
+                data.message = "room uploaded";
+                return res.send(data).status(200);
+
+            }catch(err){
+                data.data = {};
+                data.message = err.errors[0].message;
+                data.success = false;
+                return res.send(data).status(400);
+                }
+            
+        }else{ 
+            data.data = {roomNo, hostel_id, block_id, bedNo} ;
+            data.message = "data exists";
+            return res.send(data).status(400);
+        }
+
+    }catch(err){
+        data.data = {};
+        data.message = err.errors[0].message;
+        data.success = false;
+        return res.send(data).status(400);
+    }
+
 })
 
 

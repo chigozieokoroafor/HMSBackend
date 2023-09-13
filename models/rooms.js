@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // create an association here between the students and the rooms,
       // students hasone bed
       // 1 bed belongs to student
-      this.hasMany(students, {foreignKey:'matricNo', as:"student"})
+      this.hasOne(students, {foreignKey:'matricNo', as:"student"})
       // as:"room" sets an alias which can be used when fetching users
     }
     toJSON(){
@@ -43,6 +43,10 @@ module.exports = (sequelize, DataTypes) => {
     users_paid:{
       type:DataTypes.BOOLEAN,
       defaultValue:false
+    },
+    gender:{
+      type:DataTypes.STRING,
+      allowNull:false
     }
   }, {
     sequelize,

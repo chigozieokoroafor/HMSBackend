@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     hostel: {
       type: DataTypes.STRING,
-      allowNull:false
+      allowNull:true
     }
   }, {
     sequelize,

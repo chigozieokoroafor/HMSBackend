@@ -24,7 +24,7 @@ module.exports = {
       },
       hostel: {
         type: DataTypes.STRING,
-        allowNull:false
+        allowNull:true
       },
       createdAt: {
         allowNull: false,

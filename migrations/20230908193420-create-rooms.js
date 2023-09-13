@@ -1,44 +1,48 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Datatypes) {
+  async up(queryInterface, DataTypes) {
     await queryInterface.createTable('rooms', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Datatypes.INTEGER
+        type: DataTypes.INTEGER
       },
       hostel_id: {
-        type: Datatypes.STRING
+        type: DataTypes.STRING
       },
       block_id: {
-        type: Datatypes.STRING
+        type: DataTypes.STRING
       },
       bedNo: {
-        type: Datatypes.INTEGER
+        type: DataTypes.INTEGER
       },
       matricNo: {
-        type: Datatypes.STRING
+        type: DataTypes.STRING
       },
       roomNo: {
-        type: Datatypes.STRING
+        type: DataTypes.INTEGER
       },
       status:{
-        type:Datatypes.INTEGER,
+        type:DataTypes.INTEGER,
         defaultValue:1
       },
       users_paid:{
-        type:Datatypes.BOOLEAN,
+        type:DataTypes.BOOLEAN,
         defaultValue:false
       },
       createdAt: {
         allowNull: false,
-        type: Datatypes.DATE
+        type: DataTypes.DATE
       },
       updatedAt: {
         allowNull: false,
-        type: Datatypes.DATE
+        type: DataTypes.DATE
+      },
+      gender:{
+        type : DataTypes.STRING,
+        allowNull:false
       }
     });
   },

@@ -1,4 +1,4 @@
-const { sequelize, students} =  require('../../models');
+const { sequelize, students, rooms} =  require('../../models');
 const express = require("express");
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.post("/signin", async (req, res)=>{
         include:"room"
     })
     if (check===null){
-        response = {
+        let response = {
             message:"User with matric number not found",
             data:{}
         }
@@ -23,8 +23,6 @@ router.post("/signin", async (req, res)=>{
         return res.send(response).status(404);
     }
     else{
-        // console.log (check);
-        // console.log(check.password)
         if(password === check.password){
             return res.send(check).status(200);
         } else{
@@ -101,6 +99,63 @@ router.get("/user/:uid", async(req, res)=>{
     return res.status(400).json(err);
 };
 });
+
+router.get("/requestBedspace", async(req, res)=>{
+// the jwt token will contain user's matric number and gender
+    matricNo = req.query.matricNo;
+    let data = {}
+    let student = await students.findOne({
+        where:{
+            matricNo:matricNo
+        }
+    })
+
+    if (student.room_id===0){    
+        const room = await  rooms.findOne({
+            where: {
+                "gender":"M",
+                "matricNo":""
+            },
+            order:sequelize.random(),
+            limit:1
+        }) ;
+        try{
+            await room.update({
+                matricNo:matricNo
+            }
+            )
+            
+            student.update({
+                room_id:room.id
+            })
+            data.data =  room;
+            data.message = "";
+            data.success = true;
+            return res.send(data).status(200);
+
+
+        } catch(err){
+            data.message = "Bedspace exhausted";
+            data.success = false;
+            data.data = {};
+            return res.send(data).status(400);
+        }
+    }else{
+        data.message = "User already occupied a space",
+        data.data = {};
+        data.success = false;
+
+        return res.send(data).status(400);
+    }
+
+    
+});
+
+router.get("makePayment")
+// this should take them to a payment link or page where they end up paying
+
+// create a webhook to listen to payments.
+// checkout remitta's webhook payment
 
 
 module.exports =  router;
