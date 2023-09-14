@@ -1,11 +1,11 @@
 // this file would contain authentication routes for both students and admin users
-const { sequelize, students} =  require('../../models');
+const { sequelize, students, admin} =  require('../../models');
 const express = require("express");
 const router = express.Router();
 
 // authentication first
 router.use(express.json())
-
+// the jwt token will contain user's matric number and gender
 
 router.post("/signin", async (req, res)=>{
     const {username, password} =  req.body;
@@ -17,20 +17,20 @@ router.post("/signin", async (req, res)=>{
         include:"room"
     })
     if (check===null){
-        response = {
-            message:"User with matric number not found",
+
+        let response = {
+            message:"User with credentials not found",
             data:{}
         }
         
         return res.send(response).status(404);
     }
     else{
-        // console.log (check);
-        // console.log(check.password)
-        if(password === check.password){
+        if (password === check.password){
             return res.send(check).status(200);
-        } else{
-            response = {
+        }
+        else{
+            let response = {
                 message:"incorrect password",
                 data:{}
             }

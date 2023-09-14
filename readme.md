@@ -6,5 +6,5 @@ tags to be used for status of rooms
     1: available
     2: unavailable/occuoied
     3: custom
-    4: faulty
+    4: faculty
 }
