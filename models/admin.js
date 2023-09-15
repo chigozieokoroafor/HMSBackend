@@ -30,6 +30,14 @@ module.exports = (sequelize, DataTypes) => {
     hostel: {
       type: DataTypes.STRING,
       allowNull:true
+    },
+    email:{
+      type:DataTypes.STRING,
+      allowNull:false
+    }, 
+    organization:{
+      type: DataTypes.STRING,
+      allowNull:false
     }
   }, {
     sequelize,

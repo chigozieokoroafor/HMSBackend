@@ -25,7 +25,16 @@ module.exports = {
       hostel: {
         type: DataTypes.STRING,
         allowNull:true
+      }, 
+      email:{
+        type:DataTypes.STRING,
+        allowNull:false
+      }, 
+      organization:{
+        type: DataTypes.STRING,
+        allowNull:false
       },
+      
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE
