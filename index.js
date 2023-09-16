@@ -2,15 +2,15 @@ const {sequelize} =  require("./models")
 const express =  require("express");
 const student_routes = require("./routes/students/student_routes");
 const hostel_routes = require("./routes/students/upload_hostels");
-const payment = require("./routes/payments");
-
-
+const payments = require("./routes/payments");
+const auth_routes =  require('./routes/auth');
 
 const app = express();
 app.use(express.json());
 app.use("/students", student_routes);
 app.use('/hostel', hostel_routes);
-app.use("/payment", payment);
+app.use("/payment", payments);
+app.use('/auth',  auth_routes),
 
 
 

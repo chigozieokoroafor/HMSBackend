@@ -1,5 +1,5 @@
 // this file would contain authentication routes for both students and admin users
-const { sequelize, students, admin} =  require('../../models');
+const { sequelize, students, admin} =  require('../models');
 const express = require("express");
 const router = express.Router();
 
@@ -31,7 +31,7 @@ router.post("/signin", async (req, res)=>{
         }
         else{
             let response = {
-                message:"incorrect password",
+                message:"Incorrect password",
                 data:{}
             }
             
@@ -41,5 +41,8 @@ router.post("/signin", async (req, res)=>{
     }
 });
 
+router.post('/createAdminUser', async(req, res)=>{
 
-module.exports = router
+});
+
+module.exports = router;
