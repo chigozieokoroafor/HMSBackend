@@ -12,12 +12,13 @@ router.post("/signin", async (req, res)=>{
         where:{
             matricNo:matricNo
         },
-        include:"room"
+        include:[rooms]
     })
     if (check===null){
         let response = {
             message:"User with matric number not found",
-            data:{}
+            data:{},
+            success:false
         }
         
         return res.send(response).status(404);
@@ -32,73 +33,80 @@ router.post("/signin", async (req, res)=>{
             }
             
             return res.send(response).status(404);
-        }
+        } 
         
     }
 });
 
-router.post("/user", async(req, res) => {
-    const {fullName, matricNo, password, dept, faculty, part} = req.body;
-    // console.log({name, m_number, password});
-    // console.log(Students)
-    // const req_params = ["firstName", 'matricNo', "password"];
-    try {
-        const user =  await students.create({fullName, matricNo, password, dept, faculty, part});
-        const res_data = {
-            message:"",
-            data:user,
-            success:true
-        }
-        return res.json(res_data).status(200);
+// router.post("/user", async(req, res) => {
+//     const {fullName, matricNo, password, dept, faculty, part} = req.body;
+//     // console.log({name, m_number, password});
+//     // console.log(Students)
+//     // const req_params = ["firstName", 'matricNo', "password"];
+//     try {
+//         const user =  await students.create({fullName, matricNo, password, dept, faculty, part});
+//         const res_data = {
+//             message:"",
+//             data:user,
+//             success:true
+//         }
+//         return res.json(res_data).status(200);
 
-    }catch(err){
-        // console.log(err);
-        errName =  err.name
-        switch (errName){
-            case "SequelizeValidationError":
-                err_data = {
-                    message: err.errors[0].message,
-                    data:{},
-                    success:false
-                };
-                return res.status(400).json(err_data);        
+//     }catch(err){
+//         // console.log(err);
+//         errName =  err.name
+//         switch (errName){
+//             case "SequelizeValidationError":
+//                 err_data = {
+//                     message: err.errors[0].message,
+//                     data:{},
+//                     success:false
+//                 };
+//                 return res.status(400).json(err_data);        
                 
-            case "SequelizeUniqueConstraintError":
-                err_data = {
-                    message: "Matric number exists",
-                    data:{},
-                    success:false
-                };
-                return res.status(400).json(err_data);
-        }
-        // return res.status(400).json(err);
-    };
-});
+//             case "SequelizeUniqueConstraintError":
+//                 err_data = {
+//                     message: "Matric number exists",
+//                     data:{},
+//                     success:false
+//                 };
+//                 return res.status(400).json(err_data);
+//         }
+//         // return res.status(400).json(err);
+//     };
+// });
 
 
-router.get("/user", async(req, res)=>{
-    try{
-    const all_users = await students.findAll();
+// router.get("/user", async(req, res)=>{
+//     try{
+//     const all_users = await students.findAll({
+//         include:[
+//             {
+//                 model:rooms,
+//                 as:"room"
+//             }
+//          ]
+//     });
     
-    return res.status(200).json(all_users);
-} catch(err){
-    console.log(err);
-    return res.status(400).json(err);
-};
-});
+//     return res.status(200).json(all_users);
+// } catch(err){
+//     console.log(err);
+//     return res.status(400).json(err);
+// };
+// });
 
 
-router.get("/user/:uid", async(req, res)=>{
-    const uid =  req.params.uid
-    try{
-        const user = await students.findOne({where:{uuid:uid}});
+// router.get("/user/:uid", async(req, res)=>{
+//     const uid =  req.params.uid
+//     try{
+//         const user = await students.findOne({where:{uuid:uid}});
     
-        return res.status(200).json(user);
-} catch(err){
-    console.log(err);
-    return res.status(400).json(err);
-};
-});
+//         return res.status(200).json(user);
+// } catch(err){
+//     console.log(err);
+//     return res.status(400).json(err);
+// };
+// });
 
 router.get("/requestBedspace", async(req, res)=>{
 // the jwt token will contain user's matric number and gender
@@ -114,14 +122,16 @@ router.get("/requestBedspace", async(req, res)=>{
         const room = await  rooms.findOne({
             where: {
                 "gender":"M",
-                "matricNo":""
+                "matricNo":"",
+                "status":1
             },
             order:sequelize.random(),
             limit:1
         }) ;
         try{
             await room.update({
-                matricNo:matricNo
+                matricNo:matricNo,
+                status:2
             }
             )
             
@@ -151,9 +161,9 @@ router.get("/requestBedspace", async(req, res)=>{
     
 });
 
-router.get("makePayment")
+// 
+// router.get("makePayment")
 // this should take them to a payment link or page where they end up paying
-
 // create a webhook to listen to payments.
 // checkout remitta's webhook payment
 

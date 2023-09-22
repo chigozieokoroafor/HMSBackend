@@ -18,3 +18,18 @@ NB: Using Datatypes.NUMBERS returns an error
 to undo all migration : sequelize db:migrate:undo:all
 to undo last migration: sequelize db:migrate:undo
 to undo specific migration : sequelize db:migrate:undo --name 20230908193420-create-rooms.js
+
+tags to be used for status of rooms
+{
+    1: available
+    2: unavailable/occupied
+    3: custom
+    4: faulty
+    5: PG
+}
+programType is used for the progamme student is in for
+{
+    1: BSc
+    2: Masters or MPhil
+    3: PHD
+}

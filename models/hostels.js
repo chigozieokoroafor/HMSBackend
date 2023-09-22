@@ -9,9 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({blocks, rooms}) {
-      this.hasMany(blocks,{ foreignKey:'hostel_id', as:"blocks"})
-      this.hasMany(rooms,{ foreignKey:'hostel_id', as:"rooms"})
+    static associate({blocks, rooms, admin}) {
+      // this.hasMany(blocks,{ foreignKey:'hostel_id', as:"blocks"})
+      // this.hasMany(rooms,{ foreignKey:'hostel_id', as:"rooms"})
+      // this.belongsTo(admin, {foreignKey:'org_id', as:"hostels"})
     }
     toJSON(){
       return {
@@ -22,9 +23,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   hostels.init({
-    uuid: {
-      type:DataTypes.UUID,
-      primaryKey:true
+    hostel_id: {
+      type:DataTypes.INTEGER,
+      primaryKey:true,
+      autoIncrement:true,
+      allowNull:false
     },
     gender: {
       type: DataTypes.STRING,
@@ -34,6 +37,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull:false,
       unique:true
+    },
+    org_id:{
+      type:DataTypes.INTEGER,
+      allowNull:false,
+      defaultValue:1
+      
     }
   }, {
     sequelize,

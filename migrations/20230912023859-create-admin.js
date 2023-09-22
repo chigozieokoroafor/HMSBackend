@@ -30,8 +30,8 @@ module.exports = {
         type:DataTypes.STRING,
         allowNull:false
       }, 
-      organization:{
-        type: DataTypes.STRING,
+      org_id:{
+        type: DataTypes.INTEGER,
         allowNull:false
       },
       

@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       hostel_id: {
-        type: Sequelize.UUID
+        type: Sequelize.INTEGER
       },
       fee: {
         type: Sequelize.FLOAT

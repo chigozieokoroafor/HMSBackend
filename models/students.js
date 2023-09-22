@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({rooms}) {
       // define association here
-      this.belongsTo(rooms, { foreignKey:'matricNo', as:"room"})
+      // this.belongsTo(rooms, { foreignKey:'matricNo', as:"room"})
+      // this.hasOne(rooms, {foreignKey:"room_id", as:"room"})
     }
     
     toJSON(){
@@ -55,6 +56,9 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.INTEGER,
       allowNull:true,
       defaultValue:0
+    },
+    ProgrammeType:{
+      type:DataTypes.STRING
     }
   }, {
     sequelize,

@@ -3,16 +3,17 @@
 module.exports = {
   async up(queryInterface, Datatypes) {
     await queryInterface.createTable('blocks', {
-      uuid: {
-        type: Datatypes.UUID,
+      block_id: {
+        type: Datatypes.INTEGER,
         primaryKey: true,
         allowNull: false,
+        autoIncrement:true
       },
       label: {
         type: Datatypes.STRING
       },
       hostel_id: {
-        type: Datatypes.UUID,
+        type: Datatypes.INTEGER,
         allowNull: false,
       },
       createdAt: {
