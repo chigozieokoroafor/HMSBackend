@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       // create an association here between the students and the rooms,
       // students hasone bed
       // 1 bed belongs to student
-      this.hasOne(students, {foreignKey:'matricNo', as:"student"})
+      // this.hasOne(students, {foreignKey:'matricNo', as:"student"})
+      // this.belongsTo(students,{foreignKey:'room_id', as:'room'})
       // as:"room" sets an alias which can be used when fetching users
     }
     toJSON(){
@@ -26,20 +27,26 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   rooms.init({
-    hostel_id: DataTypes.UUID,
-    block_id: DataTypes.UUID,
+    hostel_name: DataTypes.STRING,
+    block: DataTypes.INTEGER,
+    roomNo: DataTypes.INTEGER,
     bedNo: DataTypes.INTEGER,
     matricNo: {
       type:DataTypes.STRING,
       defaultValue:""
     },
-    roomNo: DataTypes.INTEGER,
+    
 
     status:{
       type:DataTypes.INTEGER,
       defaultValue:1
     },
-    
+    room_id:{
+      type:DataTypes.INTEGER,
+      primaryKey:true,
+      autoIncrement:true,
+      allowNull: false,
+    },
     users_paid:{
       type:DataTypes.BOOLEAN,
       defaultValue:false
@@ -47,6 +54,23 @@ module.exports = (sequelize, DataTypes) => {
     gender:{
       type:DataTypes.STRING,
       allowNull:false
+    },
+    org_id:{
+      type:DataTypes.INTEGER, 
+      allowNull:false
+    },
+    programType:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    flag:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
+    },
+    allocated:{
+      type:DataTypes.BOOLEAN,
+      allowNull:false,
+      defaultValue:false
     }
   }, {
     sequelize,

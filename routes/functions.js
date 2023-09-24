@@ -1,4 +1,5 @@
 const Joi =  require("joi");
+const jwt = require('jsonwebtoken');
 
 function validateRooms(data){
     const schema = Joi.object({
@@ -7,9 +8,6 @@ function validateRooms(data){
         bedNo: Joi.number().required(),
         matricNo: Joi.string(),
         roomNo: Joi.number().required()
-        // block_id: Joi.string().required(),
-        // block_id: Joi.string().required(),
-        // block_id: Joi.string().required(),
 
     })
     const result = schema.validate(data);
@@ -37,6 +35,11 @@ function validateHostel(data){
     const result = schema.validate(data);
     return result;
 }
+
+function create_access_token(data){
+    
+}
+
 
 
 module.exports.validateRooms =  validateRooms;

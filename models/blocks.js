@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({hostels, rooms}) {
       // define association here
-      this.belongsTo(blocks,{ foreignKey:'hostel_id', as:"hostels"})
-      this.hasMany(rooms,{ foreignKey:'block_id', as:"rooms"})
+      // this.belongsTo(blocks,{ foreignKey:'hostel_id', as:"hostels"})
+      // this.hasMany(rooms,{ foreignKey:'block_id', as:"rooms"})
     }
     toJSON(){
       return {
@@ -23,16 +23,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   blocks.init({
-    uuid: {
-      type:DataTypes.UUID,
-      primaryKey:true
+    bloc_id: {
+      type:DataTypes.INTEGER,
+      primaryKey:true,
+      autoIncrement:true
     },
     label: {
       type:DataTypes.STRING,
       allowNull:false
     },
     hostel_id: {
-      type:DataTypes.UUID,
+      type:DataTypes.INTEGER,
       allowNull:false
     }
   }, {

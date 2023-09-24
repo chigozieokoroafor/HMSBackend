@@ -3,17 +3,24 @@
 module.exports = {
   async up(queryInterface, DataTypes) {
     await queryInterface.createTable('rooms', {
-      id: {
+      room_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      hostel_id: {
+      hostel_name: {
+        type: DataTypes.STRING,
+      },
+      block: {
         type: DataTypes.STRING
       },
-      block_id: {
-        type: DataTypes.STRING
+      org_id:{
+        type:DataTypes.INTEGER, 
+        allowNull:false
+      },
+      roomNo: {
+        type: DataTypes.INTEGER
       },
       bedNo: {
         type: DataTypes.INTEGER
@@ -21,14 +28,28 @@ module.exports = {
       matricNo: {
         type: DataTypes.STRING
       },
-      roomNo: {
-        type: DataTypes.INTEGER
-      },
+      
       status:{
         type:DataTypes.INTEGER,
         defaultValue:1
       },
       users_paid:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+      },
+      programType:{
+        type:DataTypes.STRING,
+      },
+      gender:{
+        type : DataTypes.STRING,
+        allowNull:false
+      },
+      allocated:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false,
+        defaultValue:false
+      },
+      flag:{
         type:DataTypes.BOOLEAN,
         defaultValue:false
       },
@@ -39,11 +60,8 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE
-      },
-      gender:{
-        type : DataTypes.STRING,
-        allowNull:false
       }
+
     });
   },
   async down(queryInterface, Sequelize) {

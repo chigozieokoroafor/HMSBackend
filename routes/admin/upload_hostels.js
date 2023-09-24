@@ -2,7 +2,7 @@ const { sequelize, rooms, hostels, blocks} =  require('../../models');
 const express = require("express");
 const router = express.Router();
 const uuid = require('uuid');
-const {validateRooms, validateHostels} = require("./functions");
+const {validateRooms, validateHostels} = require("../functions");
 
 
 // authentication first
