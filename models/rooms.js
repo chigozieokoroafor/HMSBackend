@@ -27,14 +27,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   rooms.init({
-    hostel_id: DataTypes.INTEGER,
+    hostel_name: DataTypes.STRING,
     block: DataTypes.INTEGER,
+    roomNo: DataTypes.INTEGER,
     bedNo: DataTypes.INTEGER,
     matricNo: {
       type:DataTypes.STRING,
       defaultValue:""
     },
-    roomNo: DataTypes.INTEGER,
+    
 
     status:{
       type:DataTypes.INTEGER,
@@ -59,8 +60,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull:false
     },
     programType:{
-      type:DataTypes.CHAR(1),
+      type:DataTypes.STRING,
       allowNull:false
+    },
+    flag:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
     },
     allocated:{
       type:DataTypes.BOOLEAN,

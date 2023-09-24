@@ -9,8 +9,8 @@ module.exports = {
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      hostel_id: {
-        type: DataTypes.STRING
+      hostel_name: {
+        type: DataTypes.STRING,
       },
       block: {
         type: DataTypes.STRING
@@ -19,15 +19,16 @@ module.exports = {
         type:DataTypes.INTEGER, 
         allowNull:false
       },
+      roomNo: {
+        type: DataTypes.INTEGER
+      },
       bedNo: {
         type: DataTypes.INTEGER
       },
       matricNo: {
         type: DataTypes.STRING
       },
-      roomNo: {
-        type: DataTypes.INTEGER
-      },
+      
       status:{
         type:DataTypes.INTEGER,
         defaultValue:1
@@ -37,7 +38,7 @@ module.exports = {
         defaultValue:false
       },
       programType:{
-        type:DataTypes.CHAR(1),
+        type:DataTypes.STRING,
       },
       gender:{
         type : DataTypes.STRING,
@@ -46,6 +47,10 @@ module.exports = {
       allocated:{
         type:DataTypes.BOOLEAN,
         allowNull:false,
+        defaultValue:false
+      },
+      flag:{
+        type:DataTypes.BOOLEAN,
         defaultValue:false
       },
       createdAt: {

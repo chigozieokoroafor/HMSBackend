@@ -57,9 +57,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull:true,
       defaultValue:0
     },
-    ProgrammeType:{
+    programType:{
       type:DataTypes.STRING
     }
+    // image:{
+    // 
+    // }
   }, {
     sequelize,
     modelName: 'students',

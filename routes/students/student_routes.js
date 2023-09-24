@@ -6,37 +6,37 @@ const router = express.Router();
 router.use(express.json())
 
 
-router.post("/signin", async (req, res)=>{
-    const {matricNo, password} =  req.body;
-    const check = await students.findOne({
-        where:{
-            matricNo:matricNo
-        },
-        include:[rooms]
-    })
-    if (check===null){
-        let response = {
-            message:"User with matric number not found",
-            data:{},
-            success:false
-        }
+// router.post("/signin", async (req, res)=>{
+//     const {matricNo, password} =  req.body;
+//     const check = await students.findOne({
+//         where:{
+//             matricNo:matricNo
+//         },
+//         include:[rooms]
+//     })
+//     if (check===null){
+//         let response = {
+//             message:"User with matric number not found",
+//             data:{},
+//             success:false
+//         }
         
-        return res.send(response).status(404);
-    }
-    else{
-        if(password === check.password){
-            return res.send(check).status(200);
-        } else{
-            response = {
-                message:"incorrect password",
-                data:{}
-            }
+//         return res.send(response).status(404);
+//     }
+//     else{
+//         if(password === check.password){
+//             return res.send(check).status(200);
+//         } else{
+//             response = {
+//                 message:"incorrect password",
+//                 data:{}
+//             }
             
-            return res.send(response).status(404);
-        } 
+//             return res.send(response).status(404);
+//         } 
         
-    }
-});
+//     }
+// });
 
 // router.post("/user", async(req, res) => {
 //     const {fullName, matricNo, password, dept, faculty, part} = req.body;
@@ -108,6 +108,28 @@ router.post("/signin", async (req, res)=>{
 // };
 // });
 
+router.get('/fetchDetails', async(req, res)=>{
+    const {matricNo} = req.query;
+    
+    let user = await students.findOne({
+        where:{
+            matricNo
+        }
+    })
+    let room = await rooms.findOne({
+        where:{
+            matricNo
+        }
+    })
+    user.dataValues.room = room || {}
+    let response = {
+        data:user,
+        success:true,
+        message:""
+    }
+    return res.send(response).status(200);
+});
+
 router.get("/requestBedspace", async(req, res)=>{
 // the jwt token will contain user's matric number and gender
     matricNo = req.query.matricNo;
@@ -160,6 +182,7 @@ router.get("/requestBedspace", async(req, res)=>{
 
     
 });
+
 
 // 
 // router.get("makePayment")
