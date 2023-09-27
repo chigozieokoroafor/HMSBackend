@@ -74,5 +74,70 @@ router.post('/createAdminUser', async(req, res)=>{
 
 });
 
+router.post('/uploadAdmin', async(req, res)=>{
+    const {username, email, password,org, superAdmin, hostel} = req.body;
+    let response = {
+        data:{},
+        success:true,
+        message:''
+    }
+
+    let org_check =  await organizations.findOne({
+                            where:{
+                                name:org
+                            }
+                        })
+    let org_id = 1
+    if (org_check === null){
+        const new_org = await organizations.create({
+            "name":org
+        })
+        console.log(new_org)
+        org_id = new_org.org_id
+    }else{
+        org_id = org_check.org_id
+    }
+
+    if(superAdmin===false && hostel===null){
+        response.success = false;
+        response.message = "Kindly provide hostel name admin is being created for";
+        response.data= {}
+        return res.send(response).status(400);
+    }
+
+
+    try{
+        const admin_check = await admin.findOne({
+            where:{
+                username, email, org_id
+            }        
+        });
+        
+        if (admin_check === null){    
+            const new_admin = await admin.create(
+                {username, email, password,org_id, superAdmin, hostel}
+            )
+            response.data = new_admin;
+            response.success = true;
+            return res.send(response).status(200);
+
+        }else{
+            response.data = {}
+            response.message = "Admin with credentials exists"
+            response.success =  false
+            return res.send(response).status(400);
+        }
+    }catch(err){
+        // return res.send(err).status(400)
+        switch (err.name){
+            case 'SequelizeValidationError':
+                response.data =  err.errors[0].message;
+                response.success = false;
+                response.message =  '';
+                return res.send(response).status(400)
+        };
+            
+    }
+});
 module.exports = router;
 
