@@ -1,5 +1,5 @@
 const express = require('express');
-const {admin, sequelize, hostels, organizations, rooms, students} =  require("../../models");
+const {admin, sequelize, hostels, organizations, rooms, students, hostel_status} =  require("../../models");
 const { ValidationError } = require('sequelize');
 // const rooms = require('../../models/rooms');
 // const organizations = require('../../models/organizations');
@@ -15,71 +15,7 @@ routes =  express.Router();
 routes.use(express.json())
 
 //  this part is used to add admins to the platform for specific organizations
-routes.post('/uploadAdmin', async(req, res)=>{
-    const {username, email, password,org, superAdmin, hostel} = req.body;
-    let response = {
-        data:{},
-        success:true,
-        message:''
-    }
 
-    let org_check =  await organizations.findOne({
-                            where:{
-                                name:org
-                            }
-                        })
-    let org_id = 1
-    if (org_check === null){
-        const new_org = await organizations.create({
-            "name":org
-        })
-        console.log(new_org)
-        org_id = new_org.org_id
-    }else{
-        org_id = org_check.org_id
-    }
-
-    if(superAdmin===false && hostel===null){
-        response.success = false;
-        response.message = "Kindly provide hostel name admin is being created for";
-        response.data= {}
-        return res.send(response).status(400);
-    }
-
-
-    try{
-        const admin_check = await admin.findOne({
-            where:{
-                username, email, org_id
-            }        
-        });
-        
-        if (admin_check === null){    
-            const new_admin = await admin.create(
-                {username, email, password,org_id, superAdmin, hostel}
-            )
-            response.data = new_admin;
-            response.success = true;
-            return res.send(response).status(200);
-
-        }else{
-            response.data = {}
-            response.message = "Admin with credentials exists"
-            response.success =  false
-            return res.send(response).status(400);
-        }
-    }catch(err){
-        // return res.send(err).status(400)
-        switch (err.name){
-            case 'SequelizeValidationError':
-                response.data =  err.errors[0].message;
-                response.success = false;
-                response.message =  '';
-                return res.send(response).status(400)
-        };
-            
-    }
-});
 
 // this route is used in hostel record
 // it returns in batches
@@ -92,9 +28,10 @@ routes.get('/getHostelRecord', async(req, res)=>{
     
     skip = offset * page
     let all_hostels
+    const attributes = ['hostel_name', 'block', "roomNo", "bedNo", "allocated", "status"]
     if (superAdmin===true){
         all_hostels = await rooms.findAll({
-            attributes:['hostel_name', 'block', "roomNo", "bedNo", "allocated"],
+            attributes: attributes,
         where:{
             org_id:org_id
             
@@ -112,7 +49,7 @@ routes.get('/getHostelRecord', async(req, res)=>{
 
     }else{
         all_hostels = await rooms.findAll({
-            attributes:['hostel_name', 'block', "roomNo", "bedNo", "allocated"],
+            attributes:attributes,
             where:{
                 hostel_name:hostel
             },
@@ -131,6 +68,59 @@ routes.get('/getHostelRecord', async(req, res)=>{
     
     return res.send(response).status(200);
 });
+
+// this  route is used to update the status of rooms.
+routes.get('/getStatuses', async(req, res)=>{
+    const statuses = await hostel_status.findAll({});
+    let response = {
+        data:{statuses},
+        success:true,
+        message:''
+    }
+    return res.send(response).status(200);
+})
+
+routes.post('/createHostelStatus', async(req, res)=>{
+    // add authorization to this
+
+    const {status} = req.body;
+    await hostel_status.create({
+        status:status
+    })
+    response = {
+        data:{},
+        success:true,
+        message:"Status created succesfully"
+    }
+    return res.send(response).status(200)
+})
+
+routes.put('/updateRoomStatus', async (req, res)=>{
+    const {tag, id_list, status} =  req.body;
+    
+    switch (tag){
+        case "block":
+            for(var i=0; i<id_list.length; i++){
+                let update_r = await rooms.find({
+                                        where:{
+                                            block:id_list[i]
+                                        }
+                                    })
+                
+            }   
+            rooms.updateMany({
+                where:{
+                    block:id_list[i]
+                }
+            }, {
+                status: ""
+            })
+            return
+        case "room":
+            return
+
+    }
+})
 
 
 routes.get('/studentRecord', async(req, res)=>{
@@ -364,6 +354,8 @@ routes.post('/allocate', async(req, res) => {
     }
 
 });
+
+
 
 // routes.delete()
 
