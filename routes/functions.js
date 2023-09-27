@@ -1,5 +1,7 @@
 const Joi =  require("joi");
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const secret_key = process.env.secret_key;
 
 function validateRooms(data){
     const schema = Joi.object({
@@ -44,3 +46,4 @@ function create_access_token(data){
 
 module.exports.validateRooms =  validateRooms;
 module.exports.validateHostel = validateHostel; 
+module.exports.secret_key = secret_key

@@ -1,7 +1,12 @@
 // this file would contain authentication routes for both students and admin users
-const { sequelize, students, admin, rooms} =  require('../models');
+const { sequelize, students, admin, rooms, organizations} =  require('../models');
 const express = require("express");
+const {secret_key} = require('./functions');
+const jwt = require('jsonwebtoken')
+
 const router = express.Router();
+
+
 
 // authentication first
 router.use(express.json())
@@ -20,6 +25,8 @@ router.post("/signin", async (req, res)=>{
             matricNo:username
         }
     })
+    let token;
+
     if (check===null){
         // use associations here to get the organization the admin falls under
         let admin_check =  await admin.findOne({
@@ -32,10 +39,16 @@ router.post("/signin", async (req, res)=>{
             if (password === admin_check.password){
                 // admin_check.remove('password');
                 const {username, superAdmin, organization, hostel } =  admin_check;
+                token = jwt.sign(
+                    {username, superAdmin, organization, hostel},
+                    secret_key,
+                    {expiresIn:'1h'}
+                )
                 
-                response.data = {username, superAdmin, organization, hostel };
+                // response.data = {username, superAdmin, organization, hostel };
                 response.message = "";
                 response.success = true;
+                response.token =  token;
                 return res.send(response).status(200);
             }
             else{
@@ -54,11 +67,17 @@ router.post("/signin", async (req, res)=>{
     }
     else{
         if (password === check.password){
-            console.log(check);
+            // console.log(check);
             const {matricNo, fullName, dept, faculty, room_id } =  check;
-            response.data = {matricNo, fullName, dept, faculty, room_id };
+            token = jwt.sign(
+                {matricNo, fullName, dept, faculty, room_id },
+                secret_key,
+                {expiresIn:'1h'}
+            )
+            // response.data = {matricNo, fullName, dept, faculty, room_id };
             response.message = "";
             response.success = true;
+            response.token = token;
             return res.send(response).status(200);
         }
         else{
@@ -74,6 +93,7 @@ router.post('/createAdminUser', async(req, res)=>{
 
 });
 
+// add a secret key to this.
 router.post('/uploadAdmin', async(req, res)=>{
     const {username, email, password,org, superAdmin, hostel} = req.body;
     let response = {
