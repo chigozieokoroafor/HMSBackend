@@ -1,10 +1,11 @@
 const { sequelize, students, rooms} =  require('../../models');
 const express = require("express");
 const router = express.Router();
+const {validate_token} = require('../functions');
 
 // authentication first
 router.use(express.json())
-
+let token
 
 // router.post("/signin", async (req, res)=>{
 //     const {matricNo, password} =  req.body;
@@ -108,78 +109,89 @@ router.use(express.json())
 // };
 // });
 
-router.get('/fetchDetails', async(req, res)=>{
-    const {matricNo} = req.query;
+router.get('/fetchDetails',validate_token ,async(req, res)=>{
+    const {id} = req.user
     
     let user = await students.findOne({
         where:{
-            matricNo
+            matricNo:id
         }
     })
     let room = await rooms.findOne({
         where:{
-            matricNo
+            matricNo:id
         }
     })
     user.dataValues.room = room || {}
     let response = {
         data:user,
         success:true,
-        message:""
+        message:"",
+        token: ""
     }
     return res.send(response).status(200);
 });
 
-router.get("/requestBedspace", async(req, res)=>{
-// the jwt token will contain user's matric number and gender
-    matricNo = req.query.matricNo;
-    let data = {}
-    let student = await students.findOne({
-        where:{
-            matricNo:matricNo
-        }
-    })
-
-    if (student.room_id===0){    
-        const room = await  rooms.findOne({
-            where: {
-                "gender":"M",
-                "matricNo":"",
-                "status":1
-            },
-            order:sequelize.random(),
-            limit:1
-        }) ;
-        try{
-            await room.update({
-                matricNo:matricNo,
-                status:2
+router.get("/requestBedspace", validate_token,async(req, res)=>{
+// the jwt token will contain user's matric number and gender and program_type
+    const user = req.user;
+    try{
+        const {id, gender, programType} = user
+        let response = {}
+        let student = await students.findOne({
+            where:{
+                matricNo:id
             }
-            )
-            
-            student.update({
-                room_id:room.id
-            })
-            data.data =  room;
-            data.message = "";
-            data.success = true;
-            return res.send(data).status(200);
+        })
+        if (student.room_id===0){    
+            const room = await  rooms.findOne({
+                where: {
+                    "gender":gender,
+                    "matricNo":null,
+                    "status":1,
+                    "programType":programType
+                },
+                order:sequelize.random(),
+                limit:1
+            });
+
+            try{
+                await room.update({
+                    matricNo:id,
+                    status:2,
+                    allocated:true
+                }
+                )
+                
+                await student.update({
+                    room_id:room.room_id
+                })
+                response.data =  room;
+                response.message = "";
+                response.success = true;
+                response.token = "";
+                return res.send(response).status(200);
 
 
-        } catch(err){
-            data.message = "Bedspace exhausted";
-            data.success = false;
-            data.data = {};
-            return res.send(data).status(400);
+            } catch(err){
+                console.log(err)
+                response.message = "Bedspace exhausted";
+                response.success = false;
+                response.data = {};
+                response.token = "";
+                return res.send(response).status(400);
+            }
+        }else{
+            response.message = "User already occupied a space",
+            response.data = {};
+            response.success = false;
+            response.token = "";
+
+            return res.send(response).status(400);
         }
-    }else{
-        data.message = "User already occupied a space",
-        data.data = {};
-        data.success = false;
+    }catch(error){
 
-        return res.send(data).status(400);
     }
-
     
 });
 

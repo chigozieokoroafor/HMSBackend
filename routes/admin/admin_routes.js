@@ -1,16 +1,18 @@
 const express = require('express');
 const {admin, sequelize, hostels, organizations, rooms, students, hostel_status} =  require("../../models");
-const { ValidationError } = require('sequelize');
-// const rooms = require('../../models/rooms');
-// const organizations = require('../../models/organizations');
-// const hostels = require('../../models/hostels');
+const { ValidationError, Op} = require('sequelize');
+const jwt = require('jsonwebtoken')
+const uuid = require('uuid');
+const { validate_token } = require('../functions');
+
+let token
 let programs = {
     "1": "BSc",
     "2": "Masters/MPhil",
     "3": "PHD"
 }
 
-routes =  express.Router();
+const routes =  express.Router();
 
 routes.use(express.json())
 
@@ -19,67 +21,111 @@ routes.use(express.json())
 
 // this route is used in hostel record
 // it returns in batches
-routes.get('/getHostelRecord', async(req, res)=>{
-    // get authorization token and decode it and get the organization and superAdmin check the user falls under.
-    offset = 20
-    const {username, superAdmin, org_id, hostel, page} = req.query;
-    // hostel in line 62 is the hostel_id of the hostel itself
-    if (page ===null) page=0;
-    
-    skip = offset * page
-    let all_hostels
-    const attributes = ['hostel_name', 'block', "roomNo", "bedNo", "allocated", "status"]
-    if (superAdmin===true){
-        all_hostels = await rooms.findAll({
-            attributes: attributes,
-        where:{
-            org_id:org_id
-            
-        },
-        
-        limit:offset,
-        offset:skip
-        })
-        response = {
-            data: all_hostels,
-            success:true,
-            message:""
-        }
 
-
-    }else{
-        all_hostels = await rooms.findAll({
-            attributes:attributes,
+routes.get('/getHostelRecord', validate_token, async(req, res)=>{
+    const admin_user = req.user
+    try{
+        const {superAdmin, org_id, hostel, id} = admin_user;
+        const admin_check = await admin.findOne({
             where:{
-                hostel_name:hostel
+                id:id
+            } 
+        })
+        
+
+        let offset = 20
+        let {page} = req.query;
+
+        
+        if (page === undefined){
+            page=0}else{
+                page = page-1
+            };
+        
+        let skip = offset * page
+        let all_hostels
+        const attributes = ['hostel_name', 'block', "roomNo", "bedNo", "allocated", "status"]
+        if (superAdmin===true && admin_check !== null){
+            all_hostels = await rooms.findAll({
+                attributes: attributes,
+            where:{
+                org_id:org_id
+                
             },
             
             limit:offset,
             offset:skip
-        })
-        response = {
-            data: all_hostels,
-            success:true,
-            message:""
+            })
+
+            let response = {
+                data: all_hostels,
+                success:true,
+                message:""
+            }
+            return res.send(response).status(200);
+
+
+        }else if (superAdmin !==true && admin_check !== null){
+            all_hostels = await rooms.findAll({
+                attributes:attributes,
+                where:{
+                    hostel_name:hostel
+                },
+                
+                limit:offset,
+                offset:skip
+            })
+            let response = {
+                data: all_hostels,
+                success:true,
+                message:""
+            }
+            return res.send(response).status(200);
+        }else{
+            return res.send({
+                "message":"Unauthorized Access", 
+                "data":{},
+                "success":false,
+                "token":""
+            }).status(401)
         }
+    } catch(error){
+        
     }
-
-
     
-    return res.send(response).status(200);
 });
 
-// this  route is used to update the status of rooms.
-routes.get('/getStatuses', async(req, res)=>{
-    const statuses = await hostel_status.findAll({});
-    let response = {
-        data:{statuses},
-        success:true,
-        message:''
-    }
-    return res.send(response).status(200);
+// this  route is used to get the status of rooms.
+routes.get('/getStatuses', validate_token, async(req, res)=>{
+    const admin_user = req.user
+    try{
+        const {superAdmin, org_id, hostel, id} = admin_user;
+        const admin_check = await admin.findOne({
+            where:{
+                id:id
+            } 
+        })
+        if (admin_check !== null){
+            const statuses = await hostel_status.findAll({});
+            let response = {
+                data:{statuses},
+                success:true,
+                message:'',
+                token:''
+            }
+            return res.send(response).status(200);
+        }else{
+            return res.send({
+                data:{},
+                success:false,
+                message:'',
+                token:""
+            })
+        }
+    }catch(error){}
 })
 
+// this route is used to create new statuses for hostels if need be.
 routes.post('/createHostelStatus', async(req, res)=>{
     // add authorization to this
 
@@ -90,148 +136,246 @@ routes.post('/createHostelStatus', async(req, res)=>{
     response = {
         data:{},
         success:true,
-        message:"Status created succesfully"
+        message:"Status created succesfully",
+        token:""
     }
     return res.send(response).status(200)
 })
 
-routes.put('/updateRoomStatus', async (req, res)=>{
+
+// this route is used to update the status of rooms
+routes.put('/updateRoomStatus', validate_token, async (req, res)=>{
     const {tag, id_list, status} =  req.body;
-    
+
+    const stat =  await hostel_status.findOne({
+               status: status
+    })
+    console.log(stat)
+
     switch (tag){
         case "block":
-            for(var i=0; i<id_list.length; i++){
-                let update_r = await rooms.find({
-                                        where:{
-                                            block:id_list[i]
-                                        }
-                                    })
-                
-            }   
-            rooms.updateMany({
-                where:{
+            for(let i=0; i<id_list.length; i++)
+            {
+                await rooms.update({
+                    status:stat.stat_id
+                },
+                {
                     block:id_list[i]
-                }
-            }, {
-                status: ""
-            })
-            return
+                })
+                
+            }
+            return res.send({
+                message:"Blocks  updated successfully",
+                data:{},
+                success:true
+            }).status(200)
         case "room":
-            return
+            for(let i=0; i<id_list.length; i++)
+            {
+                await rooms.update({
+                    status:stat.stat_id
+                },
+                {
+                    room_id:id_list[i]
+                })
+                
+            }
+            return res.send({
+                message:"Rooms updated successfully",
+                data:{},
+                success:true
+            }).status(200)
+        
+        
 
     }
 })
 
 
-routes.get('/studentRecord', async(req, res)=>{
-    params = ['hostel_name', "block", "room"]
+routes.get('/studentRecord', validate_token ,async(req, res)=>{
+    try{
+        const {superAdmin, org_id, hostel, id} = req.user;
+        const admin_check = await admin.findOne({
+            where:{
+                id:id
+            } 
+        })
+        if (admin_check !== null){
+            let params = ["block", "room"]
 
-    let new_query = {};
-    for (i=0; i< params.length; i++){
-        if(req.query[params[i]]!==undefined){
-            new_query[params[i]] = req.query[params[i]]
-        }
-    }
-    const {page} = req.query;
-    offset = 20
-    skip = (page-1)*offset
-    // check how to make a query for a not "" on a particular column
-    // res.send({"a":"asda"}).status(400)
-    // new_query.matricNo = {type:}
-    records = await rooms.findAll({
-        attributes:["matricNo",'hostel_name', 'block', "roomNo", "bedNo", "allocated", "users_paid"],
-        where:new_query,
-        offset:skip,
-        limit:offset
-    })
-    if (records.length !==0){
-        for(j=0; j<records.length;j++){
-            records[j].dataValues["bedspace"] = records[j].hostel_name + ", "+ records[j].block + ", " + records[j].roomNo + ", "+ records[j].bedNo
+            let new_query = {};
+            for (let i=0; i< params.length; i++){
+                if(req.query[params[i]]!==undefined){
+                    new_query[params[i]] = req.query[params[i]]
+                }
+            }
+            new_query.matricNo = {[Op.not]: null};
+            new_query.org_id = org_id;
+            if (hostel!==undefined && superAdmin === false){
+                new_query.hostel = hostel
+            }
+            // else if()
+
+            const {page} = req.query;
+            let offset = 20
+            let skip = (page-1)*offset
             
+            const records = await rooms.findAll({
+                attributes:["matricNo",'hostel_name', 'block', "roomNo", "bedNo", "allocated", "users_paid"],
+                where:new_query,
+                offset:skip,
+                limit:offset
+            })
+            if (records.length !==0){
+                for(let j=0; j<records.length;j++){
+                    records[j].dataValues["bedspace"] = records[j].hostel_name + ", "+ records[j].block + ", " + records[j].roomNo + ", "+ records[j].bedNo
+                    
+                }
+            }
+            const response = {
+                data:records,
+                message:"",
+                token:"",
+                success:true
+            }
+
+            return res.send(response).status(200);
+        }else{
+            return res.send(
+                {
+                    data:[],
+                    message:"Unauthorized Access",
+                    success:false
+                }
+            )
         }
+    }catch(error){
+        console.log(error.name)
     }
-    res.send(records)
 
 })
 
 // this route is used to get information of specific students
-routes.get('/fetchStudentInfo', async(req, res)=>{
-    // get the jwt token from this point.
-
-    const {matricNo} = req.query;
-    console.log(matricNo)
-    let student = await students.findOne({
-        attributes: ["fullName",'dept', "matricNo"],
-        where:{
-            matricNo:matricNo
-        }
-    })
-    // console.log(student);
-    if(student !== null && student.room_id !== 0){
-        const room = await rooms.findOne({
-            attributes:["hostel_name", "block", "roomNo"],
-            where: {
-                matricNo
-            }
+routes.get('/fetchStudentInfo', validate_token, async(req, res)=>{
+    try{    
+        const {superAdmin, org_id, hostel, id} = req.user;
+        const admin_check = await admin.findOne({
+            where:{
+                id:id,
+            } 
         })
-        student.dataValues.roomData = room
+        if (admin_check !== null){    
+            const {matricNo} = req.query;
+            const room = await rooms.findOne({
+                attributes:["hostel_name", "block", "roomNo"],
+                where: {
+                    matricNo,
+                    org_id
+                }
+            })
+            if(room !== null){   
+                let student = await students.findOne({
+                    attributes: ["fullName",'dept', "matricNo"],
+                    where:{
+                        matricNo:matricNo,
+                    }
+                })
+                // console.log(student);
+                student.dataValues.roomData = room
+                
+                response = {
+                    data: student,
+                    message:"",
+                    success:true
+                }
+                return res.send(response).status(200)
+            }else{
+                return res.send({
+                    data:{},
+                    message: `Student with matricNo ${matricNo} not found`,
+                    success:false,
+                    token:''
+                }).status(400)
+            }
+
+        }else{
+                return res.send({
+                    data:{},
+                    message:"Unauthorized Access",
+                    success:false,
+                    token:''
+                }).status(400)
+            }
+
+    }catch(error){
+
     }
-    
-    response = {
-        data: student || {},
-        message:"",
-        success:true
-    }
-    return res.send(response).status(200)
     
 })
 
 // this section is used to get the list of available rooms in hostel.
-routes.get('/getAvailableRooms', async(req, res)=>{
-    const {user_id, page, org_id} = req.query;
-    if (page ===null) page=0;
-    offset = 20
-    skip = offset * page
+routes.get('/getAvailableRooms', validate_token, async(req, res)=>{
+    try{    
+        const {superAdmin, org_id, hostel, id} = req.user;
+        const admin_check = await admin.findOne({
+            where:{
+                id:id,
+            } 
+        })
+        if (admin_check !== null){
 
-    const availRooms = await rooms.findAll({
-        where:{
-            status: 1,
-            matricNo:'',
-            org_id:org_id
-        },
-        limit:offset,
-        offset:skip
-    })
-    let response = {
-        data:availRooms|| {},
-        message:'',
-        success:true
-    }
-    return res.send(response).status(200);
+            const {page} = req.query;
+            if (page ===null) page=0;
+            offset = 20
+            skip = offset * page
 
+            const availRooms = await rooms.findAll({
+                where:{
+                    status: 1,
+                    matricNo:'',
+                    org_id:org_id
+                },
+                limit:offset,
+                offset:skip
+            })
+            let response = {
+                data:availRooms|| {},
+                message:'',
+                success:true
+            }
+            return res.send(response).status(200);
+        }
+    } catch(error){}
     
 });
 
 //  this section is used to get available hostels for custom allocations
-routes.get('/getAvailableHostels', async(req, res)=>{
+routes.get('/getAvailableHostels', validate_token,async(req, res)=>{
     // get the organization and if user is a super admin.
+    const user = req.user;
+    try{
+        const {superAdmin, org_id, hostel, id} = user;
 
-    const data  = await rooms.findAll({
-        attributes: ['hostel_name'],
-        group: ['hostel_name'],
-        where:{
-            status:1
+        const data  = await rooms.findAll({
+            attributes: ['hostel_name'],
+            group: ['hostel_name'],
+            where:{
+                status:1,
+                org_id:org_id
+            }
+        }).then(projects => 
+            projects.map(project => project.hostel_name)
+        );
+        
+        response = {
+            data:{"hostels":data},
+            message:"",
+            success:true
         }
-      }).then(projects => 
-        projects.map(project => project.hostel_name)
-      );
-    
-    response = {
-        data:{"hostels":data},
-        message:"",
-        success:true
+        return res.send(response).status(200);
+    }catch(error){
+
     }
-    return res.send(response).status(200);
 });
 
 
@@ -318,41 +462,64 @@ routes.get('/getRoomSpace', async(req, res)=>{
 
  
 // this section is used to allocat user to specific room for custom allocation.
-routes.post('/allocate', async(req, res) => {
-    const {matricNo, hostel_name, block, bedNo, roomNo} = req.body
+routes.post('/allocate', validate_token, async(req, res) => {
+    const admin_user = req.user;
+    try{
+        const {superAdmin, org_id, hostel, id} = admin_user;
 
-    const st_check = await rooms.findOne({
-        where:{
-            matricNo
-        }
-    })
-
-    if (st_check===null){    
-        let freeRoom = await rooms.findOne({
-            where:{
-                hostel_name, block, bedNo, roomNo
+        let admin_check = await admin.findOne({
+            where: {
+                id:id,
+                superAdmin:true
             }
         })
-        freeRoom.matricNo = matricNo;
-        freeRoom.status = 2;
-        freeRoom.allocated=true;
+        // console.log(admin_check);
+        if (admin_check !== null){
+            const {matricNo, hostel_name, block, bedNo, roomNo} = req.body
+            const st_check = await rooms.findOne({
+                where:{
+                    matricNo:matricNo
+                }
+            })
+            
+            if (st_check===null){    
+                let freeRoom = await rooms.findOne({
+                    where:{
+                        hostel_name, block, bedNo, roomNo
+                    }
+                })
+                freeRoom.matricNo = matricNo;
+                freeRoom.status = 2;
+                freeRoom.allocated=true;
 
-        await freeRoom.save();
+                await freeRoom.save();
 
-        let response = {
-            data: freeRoom,
-            success:true,
-            message: 'Succesfully allocated'
+                let response = {
+                    data: freeRoom,
+                    success:true,
+                    message: 'Succesfully allocated'
+                }
+                return res.send(response).status(200)
+            }else{
+                response = {
+                    data:{},
+                    success:false,
+                    message:"Student currently has a bedspace.",
+                    token:""
+                }
+                return res.send(response).status(400)
+            }
+        }else {
+            return res.send({
+                "message":"Only Super admins can allocate hostels",
+                "data":{},
+                "success":false,
+                "token":""
+            }).status(400)
         }
-        return res.send(response).status(200)
-    }else{
-        response = {
-            data:{},
-            success:false,
-            message:"Student currently has a bedspace."
-        }
+    }catch(error){
+
     }
-
 });
 
 

@@ -35,6 +35,12 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       allowNull:false
     },
+    sex:{
+      type:DataTypes.STRING,
+      allowNull:false,
+      defaultValue:"M"
+    }
+    ,
     dept: {
       type:DataTypes.STRING,
       allowNull:false
@@ -60,9 +66,7 @@ module.exports = (sequelize, DataTypes) => {
     programType:{
       type:DataTypes.STRING
     }
-    // image:{
-    // 
-    // }
+    
   }, {
     sequelize,
     modelName: 'students',
