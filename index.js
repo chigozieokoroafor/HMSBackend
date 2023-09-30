@@ -19,7 +19,7 @@ app.use('/admin', admin_routes);
 
 
 
-app.listen(3000, async ()=>{
+app.listen(5000, async ()=>{
     console.log("started");
     // await sequelize.sync({force:true}); // it deletes previous table and creates new one
     // await sequelize.sync({alter:true}); //this just alters the table
