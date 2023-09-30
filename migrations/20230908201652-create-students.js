@@ -12,6 +12,11 @@ module.exports = {
         allowNull: false,
         type: Datatypes.STRING
       },
+      sex:{
+        type:Datatypes.STRING,
+        allowNull:false,
+        defaultValue:"M"
+      },
       dept: {
         allowNull: false,
         type: Datatypes.STRING

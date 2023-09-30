@@ -5,9 +5,11 @@ const hostel_routes = require("./routes/admin/upload_hostels");
 const payments = require("./routes/payments");
 const auth_routes =  require('./routes/auth');
 const admin_routes = require("./routes/admin/admin_routes")
+const cors  = require('cors');
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 app.use("/students", student_routes);
 app.use('/hostel', hostel_routes);
 app.use("/payment", payments);

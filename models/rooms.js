@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     bedNo: DataTypes.INTEGER,
     matricNo: {
       type:DataTypes.STRING,
-      defaultValue:""
+      allowNull:true
     },
     
 
