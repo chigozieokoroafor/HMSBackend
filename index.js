@@ -26,8 +26,5 @@ app.listen(5000, async ()=>{
     // await sequelize.sync({force:true});
     await sequelize.authenticate();
     console.log("connected to database")
-    
-
-
 })
 

@@ -20,33 +20,68 @@ router.post("/signin", async (req, res)=>{
         data:{},
         success:true
     }
-
-    const check = await students.findOne({
-        where:{
-            matricNo:username
-        }
-    })
-    let token;
-
-    if (check===null){
-        // use associations here to get the organization the admin falls under
-        let admin_check =  await admin.findOne({
+    try{
+        const check = await students.findOne({
             where:{
-                username:username
+                matricNo:username
             }
         })
+        let token;
 
-        if (admin_check !== null){
-            if (password === admin_check.password){
-                
-                const {id, superAdmin, org_id, hostel} =  admin_check;
+        if (check===null){
+            // use associations here to get the organization the admin falls under
+            let admin_check =  await admin.findOne({
+                where:{
+                    username:username
+                }
+            })
+
+            if (admin_check !== null){
+                if (password === admin_check.password){
+                    
+                    const {id, superAdmin, org_id, hostel} =  admin_check;
+                    token = jwt.sign(
+                        {id, superAdmin, org_id, hostel},
+                        secret_key,
+                        {expiresIn:'1h'}
+                    )
+                    
+                    
+                    response.message = "";
+                    response.success = true;
+                    response.token = token;
+                    
+                    return res.send(response).status(200);
+                }
+                else{
+                    response.message = "Incorrect Credentials provided"
+                    response.data = {}
+                    response.success =  false
+                    response.token = ""
+                    return res.send(response).status(404);
+                }
+            }else{    
+                    
+                response.message = "Incorrect Credentials provided"
+                response.data = {}
+                response.success =  false
+                response.token = ''
+                return res.send(response).status(404);
+            }
+        }
+        else{
+            if (password === check.password){
+                // console.log(check);
+                let id = check.matricNo
                 token = jwt.sign(
-                    {id, superAdmin, org_id, hostel},
+                    {id:id,
+                    gender:check.sex,
+                    programType: check.programType
+                },
                     secret_key,
                     {expiresIn:'1h'}
                 )
-                
-                
+                // response.data = {matricNo, fullName, dept, faculty, room_id };
                 response.message = "";
                 response.success = true;
                 response.token = token;
@@ -55,45 +90,13 @@ router.post("/signin", async (req, res)=>{
             }
             else{
                 response.message = "Incorrect Credentials provided"
-                response.data = {}
-                response.success =  false
-                response.token = ""
+                
                 return res.send(response).status(404);
             }
-        }else{    
-                
-            response.message = "Incorrect Credentials provided"
-            response.data = {}
-            response.success =  false
-            response.token = ''
-            return res.send(response).status(404);
-        }
-    }
-    else{
-        if (password === check.password){
-            // console.log(check);
-            let id = check.matricNo
-            token = jwt.sign(
-                {id:id,
-                gender:check.sex,
-                programType: check.programType
-            },
-                secret_key,
-                {expiresIn:'1h'}
-            )
-            // response.data = {matricNo, fullName, dept, faculty, room_id };
-            response.message = "";
-            response.success = true;
-            response.token = token;
             
-            return res.send(response).status(200);
         }
-        else{
-            response.message = "Incorrect Credentials provided"
-            
-            return res.send(response).status(404);
-        }
-        
+    }catch(error){
+        return res.send(error).status(400)
     }
 });
 
